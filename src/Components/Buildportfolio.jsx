@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "./Buildportfolio.css";
 
 function Buildportfolio() {
   const [portfolio, setPortfolio] = useState(null);
@@ -10,7 +11,9 @@ function Buildportfolio() {
   useEffect(() => {
     const fetchPortfolio = async () => {
       try {
-        const res = await fetch("https://final-hackathon-smit-in-backend.vercel.app/portfolios");
+        const res = await fetch(
+          "https://final-hackathon-smit-in-backend.vercel.app/portfolios"
+        );
         const data = await res.json();
         if (res.ok && data.length > 0) {
           setPortfolio(data[data.length - 1]);
@@ -48,11 +51,14 @@ function Buildportfolio() {
 
   const handleUpdate = async () => {
     try {
-      const res = await fetch(`https://final-hackathon-smit-in-backend.vercel.app/portfolios/${portfolio._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(portfolio),
-      });
+      const res = await fetch(
+        `https://final-hackathon-smit-in-backend.vercel.app/portfolios/${portfolio._id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(portfolio),
+        }
+      );
       const data = await res.json();
       if (res.ok) {
         toast.success("Portfolio updated successfully!");
@@ -68,9 +74,10 @@ function Buildportfolio() {
 
   const handleDelete = async () => {
     try {
-      const res = await fetch(`https://final-hackathon-smit-in-backend.vercel.app/portfolios/${portfolio._id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `https://final-hackathon-smit-in-backend.vercel.app/portfolios/${portfolio._id}`,
+        { method: "DELETE" }
+      );
       if (res.ok) {
         toast.success("Portfolio deleted successfully!");
         setPortfolio(null);
@@ -83,185 +90,212 @@ function Buildportfolio() {
     }
   };
 
-  if (loading)
+  if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen text-white text-xl">
-        Loading portfolio...
+      <div className="page">
+        <div className="loading">Loading portfolio...</div>
       </div>
     );
+  }
 
-  if (!portfolio)
+  if (!portfolio) {
     return (
-      <div className="flex justify-center items-center h-screen text-white text-xl">
-        No portfolio found.
+      <div className="page">
+        <div className="loading">No portfolio found.</div>
       </div>
     );
+  }
 
   return (
-    <div className="max-w-3xl mx-auto mt-12 p-6 rounded-2xl shadow-2xl border border-gray-700 bg-gradient-to-br from-[#111827] to-[#1F2937]">
+    <div className="page">
       <ToastContainer position="top-right" autoClose={3000} />
 
-      {editing ? (
-        <>
-          <h1 className="text-3xl font-bold mb-6 text-purple-400 text-center drop-shadow-lg">
-            Edit Portfolio
+      <div className="card">
+        <div className="profile">
+      <img 
+  src="/img.png"
+  alt="Profile" 
+  className="avatar" 
+/>
+
+          <h1 className="title">
+            {editing ? "Edit Portfolio" : `${portfolio.name}'s Portfolio`}
           </h1>
+        </div>
+{editing ? (
+  <>
+    <input
+      className="input"
+      value={portfolio.name}
+      onChange={(e) => handleChange("name", e.target.value)}
+      placeholder="Your Name"
+    />
 
-          <input
-            className="border border-gray-600 p-3 w-full mb-4 rounded-lg bg-[#1F2937] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            value={portfolio.name}
-            onChange={(e) => handleChange("name", e.target.value)}
-            placeholder="Your Name"
-          />
+    <input
+      className="input"
+      value={(portfolio.skills || []).join(", ")}
+      onChange={(e) =>
+        handleChange(
+          "skills",
+          e.target.value.split(",").map((s) => s.trim())
+        )
+      }
+      placeholder="Skills (comma separated)"
+    />
+<div className="mb-6">
+  <h2 className="section-title">Projects</h2>
 
-          <input
-            className="border border-gray-600 p-3 w-full mb-4 rounded-lg bg-[#1F2937] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            value={portfolio.skills.join(", ")}
-            onChange={(e) =>
-              handleChange("skills", e.target.value.split(",").map((s) => s.trim()))
-            }
-            placeholder="Skills (comma separated)"
-          />
+  {portfolio.projects.map((project, index) => (
+    <div key={index} className="project-edit">
+      <div className="field-row">
+        <label className="field-label">Title:</label>
+        <input
+          className="input"
+          value={project.title}
+          onChange={(e) =>
+            handleProjectChange(index, "title", e.target.value)
+          }
+          placeholder="Project Title"
+        />
+      </div>
 
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-3 text-white drop-shadow-sm">Projects</h2>
-            {portfolio.projects.map((project, index) => (
-              <div
-                key={index}
-                className="mb-4 p-4 border border-gray-600 rounded-xl shadow-md bg-[#1F2937] hover:shadow-purple-500/40 transition"
-              >
-                <p className="text-sm text-purple-300 font-semibold">Title:</p>
-                <input
-                  className="border border-gray-600 p-2 w-full rounded-lg bg-[#111827] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 mb-2"
-                  value={project.title}
-                  onChange={(e) => handleProjectChange(index, "title", e.target.value)}
-                />
+      <div className="field-row">
+        <label className="field-label">Description:</label>
+        <input
+          className="input"
+          value={project.description}
+          onChange={(e) =>
+            handleProjectChange(index, "description", e.target.value)
+          }
+          placeholder="Project Description"
+        />
+      </div>
 
-                <p className="text-sm text-purple-300 font-semibold">Description:</p>
-                <input
-                  className="border border-gray-600 p-2 w-full rounded-lg bg-[#111827] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 mb-2"
-                  value={project.description}
-                  onChange={(e) => handleProjectChange(index, "description", e.target.value)}
-                />
+      <div className="field-row">
+        <label className="field-label">Link:</label>
+        <input
+          className="input"
+          value={project.link}
+          onChange={(e) =>
+            handleProjectChange(index, "link", e.target.value)
+          }
+          placeholder="Project Link"
+        />
+      </div>
 
-                <p className="text-sm text-purple-300 font-semibold">Link:</p>
-                <input
-                  className="border border-gray-600 p-2 w-full rounded-lg bg-[#111827] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 mb-2"
-                  value={project.link}
-                  onChange={(e) => handleProjectChange(index, "link", e.target.value)}
-                />
+      <div className="actions-row">
+        <button
+          className="btn btn-danger"
+          onClick={() => removeProject(index)}
+        >
+          Remove Project
+        </button>
+      </div>
 
-                <button
-                  className="bg-red-600 text-white px-4 py-1 rounded-lg hover:bg-red-700 hover:shadow-red-500/50 transition mt-2"
-                  onClick={() => removeProject(index)}
-                >
-                  Remove Project
-                </button>
-              </div>
-            ))}
-
-            <button
-              className="bg-purple-600 text-white px-5 py-2 rounded-lg hover:bg-purple-700 hover:shadow-purple-500/50 transition"
-              onClick={addProject}
-            >
-              + Add Project
-            </button>
-          </div>
-
-          <input
-            className="border border-gray-600 p-3 w-full mb-6 rounded-lg bg-[#1F2937] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            value={portfolio.githubLink}
-            onChange={(e) => handleChange("githubLink", e.target.value)}
-            placeholder="GitHub Link"
-          />
-
-          <div className="flex justify-center gap-4">
-            <button
-              className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 hover:shadow-purple-500/50 transition font-semibold"
-              onClick={handleUpdate}
-            >
-              Save
-            </button>
-            <button
-              className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition font-semibold"
-              onClick={() => setEditing(false)}
-            >
-              Cancel
-            </button>
-          </div>
-        </>
-      ) : (
-        <>
-          <h1 className="text-3xl font-bold mb-6 text-purple-400 text-center drop-shadow-lg">
-            {portfolio.name}'s Portfolio
-          </h1>
-
-          <p className="text-white mb-6">
-            <strong>Skills:</strong> {portfolio.skills.join(", ")}
-          </p>
-
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-3 text-white drop-shadow-sm">Projects</h2>
-            {portfolio.projects.map((project, index) => (
-              <div
-                key={index}
-                className="mb-4 p-4 border border-gray-600 rounded-xl shadow-md bg-gradient-to-r from-[#111827] to-[#1F2937] hover:shadow-purple-500/40 transition"
-              >
-                <p className="text-sm text-purple-300 font-semibold">Title:</p>
-                <p className="text-lg font-bold text-white mb-2">{project.title}</p>
-
-                <p className="text-sm text-purple-300 font-semibold">Description:</p>
-                <p className="text-gray-300 mb-2">{project.description}</p>
-
-                {project.link && (
-                  <>
-                    <p className="text-sm text-purple-300 font-semibold">Link:</p>
-                    <a
-                      href={project.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-purple-400 font-medium underline hover:text-purple-300 text-sm"
-                    >
-                      {project.link}
-                    </a>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-
-          <p className="mb-6 text-white">
-            <strong>GitHub:</strong>{" "}
-            <a
-              href={portfolio.githubLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-purple-400 underline hover:text-purple-300"
-            >
-              {portfolio.githubLink}
-            </a>
-          </p>
-
-          <div className="flex justify-center gap-6">
-            <button
-              className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 hover:shadow-purple-500/50 transition font-semibold"
-              onClick={() => setEditing(true)}
-            >
-              Edit Portfolio
-            </button>
-            <button
-              className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 hover:shadow-red-500/50 transition font-semibold"
-              onClick={handleDelete}
-            >
-              Delete Portfolio
-            </button>
-          </div>
-        </>
+      {index !== portfolio.projects.length - 1 && (
+        <hr className="divider" />
       )}
+    </div>
+  ))}
+</div>
+
+<button className="btn btn-primary" onClick={addProject}>
+  + Add Project
+</button>
+
+
+    <input
+      className="input"
+      value={portfolio.githubLink}
+      onChange={(e) => handleChange("githubLink", e.target.value)}
+      placeholder="GitHub Link"
+    />
+
+    <div className="actions">
+      <button className="btn btn-primary" onClick={handleUpdate}>
+        Save
+      </button>
+      <button className="btn btn-secondary" onClick={() => setEditing(false)}>
+        Cancel
+      </button>
+    </div>
+  </>
+) : (
+          <>
+            <p className="meta-line">
+              <span className="meta-key">Skills:</span>{" "}
+              {(portfolio.skills || []).join(", ")}
+            </p>
+
+            <div className="section">
+              <h2 className="section-title">Projects</h2>
+
+              {portfolio.projects.map((project, index) => (
+                <div key={index} className="project-view">
+                  <div className="kv">
+                    <span className="field-label">Title</span>
+                    <span className="kv-value">{project.title || "-"}</span>
+                  </div>
+
+                  <div className="kv">
+                    <span className="field-label">Description</span>
+                    <span className="kv-value">
+                      {project.description || "-"}
+                    </span>
+                  </div>
+
+                  <div className="kv">
+                    <span className="field-label">Link</span>
+                    {project.link ? (
+                      <a
+                        href={project.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="link"
+                      >
+                        {project.link}
+                      </a>
+                    ) : (
+                      <span className="kv-value">-</span>
+                    )}
+                  </div>
+
+                  {index !== portfolio.projects.length - 1 && (
+                    <hr className="divider" />
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <p className="meta-line">
+              <span className="meta-key">GitHub:</span>{" "}
+              {portfolio.githubLink ? (
+                <a
+                  href={portfolio.githubLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="link"
+                >
+                  {portfolio.githubLink}
+                </a>
+              ) : (
+                "-"
+              )}
+            </p>
+
+            <div className="actions">
+              <button className="btn btn-primary" onClick={() => setEditing(true)}>
+                Edit Portfolio
+              </button>
+              <button className="btn btn-danger" onClick={handleDelete}>
+                Delete Portfolio
+              </button>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
 
 export default Buildportfolio;
-
-
